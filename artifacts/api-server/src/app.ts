@@ -47,7 +47,7 @@ const frontendDistDir = path.resolve(__dirname, "../../pap-pay/dist/public");
 app.use(express.static(frontendDistDir));
 
 // Fallback to index.html for SPA routing
-app.get("/*", (_req, res) => {
+app.get(/^\/(?!api\/).*/, (_req, res) => {
   res.sendFile(path.join(frontendDistDir, "index.html"));
 });
 
