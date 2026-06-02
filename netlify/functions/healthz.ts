@@ -1,6 +1,4 @@
-import type { Config, Context } from "@netlify/functions";
-
-export default async (req: Request, context: Context) => {
+export default async (req: Request) => {
   return new Response(
     JSON.stringify({ status: "ok" }),
     {
@@ -12,6 +10,6 @@ export default async (req: Request, context: Context) => {
   );
 };
 
-export const config: Config = {
+export const config = {
   path: "/api/healthz",
 };
