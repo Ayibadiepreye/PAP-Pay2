@@ -1,22 +1,28 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: PAP Pay API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: people
+    description: Attendee management
+  - name: payments
+    description: Payment submissions
+  - name: tickets
+    description: Ticket management
+  - name: admin
+    description: Admin operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +30,235 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /people:
+    get:
+      operationId: listPeople
+      tags: [people]
+      summary: List all attendees with paid status
+      responses:
+        "200":
+          description: List of people
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Person"
+
+  /stats:
+    get:
+      operationId: getStats
+      tags: [admin]
+      summary: Get payment and attendance stats
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stats"
+
+  /payments:
+    get:
+      operationId: listPayments
+      tags: [payments]
+      summary: List all payments (admin)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, verified, rejected]
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of payments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Payment"
+    post:
+      operationId: submitPayment
+      tags: [payments]
+      summary: Submit a payment with proof
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentInput"
+      responses:
+        "201":
+          description: Payment submitted and ticket created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TicketResult"
+        "400":
+          description: Validation error
+
+  /payments/{id}:
+    get:
+      operationId: getPayment
+      tags: [payments]
+      summary: Get payment by ID (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Payment details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        "404":
+          description: Not found
+
+  /payments/{id}/status:
+    patch:
+      operationId: updatePaymentStatus
+      tags: [payments]
+      summary: Update payment status (admin verify/reject)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentStatusUpdate"
+      responses:
+        "200":
+          description: Updated payment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+
+  /tickets:
+    get:
+      operationId: listTickets
+      tags: [tickets]
+      summary: List all tickets (admin)
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: delivered
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of tickets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Ticket"
+
+  /tickets/{ticketCode}:
+    get:
+      operationId: getTicket
+      tags: [tickets]
+      summary: Get ticket by code
+      parameters:
+        - name: ticketCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ticket details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticket"
+        "404":
+          description: Not found
+
+  /tickets/{ticketCode}/delivered:
+    patch:
+      operationId: markTicketDelivered
+      tags: [tickets]
+      summary: Mark ticket as delivered (admin)
+      parameters:
+        - name: ticketCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Updated ticket
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticket"
+
+  /admin/login:
+    post:
+      operationId: adminLogin
+      tags: [admin]
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminCredentials"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+        "401":
+          description: Invalid credentials
+
+  /admin/logout:
+    post:
+      operationId: adminLogout
+      tags: [admin]
+      summary: Admin logout
+      responses:
+        "200":
+          description: Logged out
+
+  /admin/me:
+    get:
+      operationId: getAdminMe
+      tags: [admin]
+      summary: Check admin session
+      responses:
+        "200":
+          description: Session valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+        "401":
+          description: Not authenticated
+
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +266,158 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
+
+    Person:
+      type: object
+      required: [id, number, name, isPaid]
+      properties:
+        id:
+          type: integer
+        number:
+          type: integer
+        name:
+          type: string
+        isPaid:
+          type: boolean
+        ticketCode:
+          type: ["string", "null"]
+
+    Stats:
+      type: object
+      required: [totalPeople, paidCount, unpaidCount, totalTickets, deliveredCount, pendingPayments]
+      properties:
+        totalPeople:
+          type: integer
+        paidCount:
+          type: integer
+        unpaidCount:
+          type: integer
+        totalTickets:
+          type: integer
+        deliveredCount:
+          type: integer
+        pendingPayments:
+          type: integer
+
+    Payment:
+      type: object
+      required: [id, senderName, numberOfPeople, peopleIds, paymentProofUrl, amountPaid, status, ticketCode, createdAt]
+      properties:
+        id:
+          type: integer
+        senderName:
+          type: string
+        numberOfPeople:
+          type: integer
+        peopleIds:
+          type: array
+          items:
+            type: integer
+        peopleNames:
+          type: array
+          items:
+            type: string
+        paymentProofUrl:
+          type: string
+        amountPaid:
+          type: number
+        status:
+          type: string
+          enum: [pending, verified, rejected]
+        ticketCode:
+          type: string
+        createdAt:
+          type: string
+
+    PaymentInput:
+      type: object
+      required: [senderName, numberOfPeople, peopleIds, paymentProofUrl, amountPaid, agreedToTerms]
+      properties:
+        senderName:
+          type: string
+        numberOfPeople:
+          type: integer
+        peopleIds:
+          type: array
+          items:
+            type: integer
+        paymentProofUrl:
+          type: string
+        amountPaid:
+          type: number
+        agreedToTerms:
+          type: boolean
+
+    PaymentStatusUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [verified, rejected]
+        adminNote:
+          type: ["string", "null"]
+
+    TicketResult:
+      type: object
+      required: [ticketCode, paymentId, peopleNames]
+      properties:
+        ticketCode:
+          type: string
+        paymentId:
+          type: integer
+        peopleNames:
+          type: array
+          items:
+            type: string
+
+    Ticket:
+      type: object
+      required: [id, ticketCode, paymentId, peopleIds, peopleNames, isDelivered, createdAt]
+      properties:
+        id:
+          type: integer
+        ticketCode:
+          type: string
+        paymentId:
+          type: integer
+        peopleIds:
+          type: array
+          items:
+            type: integer
+        peopleNames:
+          type: array
+          items:
+            type: string
+        senderName:
+          type: string
+        isDelivered:
+          type: boolean
+        deliveredAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        paymentProofUrl:
+          type: string
+        paymentStatus:
+          type: string
+
+    AdminCredentials:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    AdminSession:
+      type: object
+      required: [authenticated, username]
+      properties:
+        authenticated:
+          type: boolean
+        username:
+          type: string
 
