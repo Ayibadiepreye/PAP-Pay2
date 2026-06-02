@@ -4,8 +4,8 @@ FROM node:20-slim
 # Set working directory
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm@11
+# Install pnpm v9.15.5 (compatible with Node 20)
+RUN npm install -g pnpm@9.15.5
 
 # Copy package files
 COPY package.json pnpm-workspace.yaml ./
