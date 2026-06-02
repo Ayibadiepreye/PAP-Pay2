@@ -1,0 +1,9 @@
+[build]
+builder = "NIXPACKS"
+
+[build.nixpacks]
+phases.build.command = "pnpm build"
+
+[deploy]
+startCommand = "cd artifacts/api-server && node dist/index.mjs"
+healthcheckPath = "/api/healthz"

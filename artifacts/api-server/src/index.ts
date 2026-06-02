@@ -7,7 +7,8 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
-const rawPort = process.env["API_PORT"];
+// Use either API_PORT or PORT (Railway sets PORT automatically!)
+const rawPort = process.env["API_PORT"] || process.env["PORT"] || "3000";
 
 if (!rawPort) {
   throw new Error(
