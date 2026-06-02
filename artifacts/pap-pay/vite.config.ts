@@ -5,7 +5,7 @@ import path from "path";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
-  const port = 5173;
+  const port = Number(env.PORT) || 5173;
   const basePath = env.BASE_PATH || "/";
 
   return {
@@ -45,12 +45,7 @@ export default defineConfig(({ mode }) => {
       port,
       host: "0.0.0.0",
       allowedHosts: true,
-      proxy: {
-        "/api": {
-          target: "http://localhost:3000",
-          changeOrigin: true,
-        },
-      },
+      strictPort: true,
     },
   };
 });
