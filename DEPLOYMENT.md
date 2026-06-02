@@ -20,11 +20,28 @@ This deploys both the frontend and backend as a single Express server on Railway
 ### Step 2: Add Environment Variables in Railway
 In your Railway service's "Variables" section:
 - `DATABASE_URL`: Your Neon PostgreSQL connection string
-- `API_PORT`: 3000 (Railway will auto-assign a port, but setting this is safe)
 - `NODE_ENV`: production
+- No need to set API_PORT/PORT — Railway will handle it automatically!
 
 ### Step 3: Deploy!
 Railway will auto-detect `railway.toml` and deploy!
+
+---
+
+## Railway Troubleshooting
+
+If your build fails:
+- Make sure you're pushing all necessary files to GitHub!
+- The `railway.toml` we created will handle installing pnpm, dependencies, and building!
+- Check the Railway deployment logs for specific errors!
+
+---
+
+## What the Build Does on Railway
+1. **Setup**: Install pnpm
+2. **Install**: Run `pnpm install --no-frozen-lockfile`
+3. **Build**: Run `pnpm build` (this builds all packages, including frontend and backend)
+4. **Start**: Runs `cd artifacts/api-server && node dist/index.mjs`
 
 ---
 
