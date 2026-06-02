@@ -17,7 +17,7 @@ export default function Dashboard() {
   const queryClient = useQueryClient();
 
   const { data: session, isLoading: sessionLoading } = useGetAdminMe({
-    query: { retry: false, refetchOnWindowFocus: false }
+    query: { retry: false, refetchOnWindowFocus: false, queryKey: ["/api/admin/me"] }
   });
 
   const loginMutation = useAdminLogin();
@@ -37,7 +37,7 @@ export default function Dashboard() {
   };
 
   const handleLogout = () => {
-    logoutMutation.mutate({}, {
+    logoutMutation.mutate(undefined, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["/api/admin/me"] });
       }
@@ -214,6 +214,7 @@ function PaymentsTab() {
               className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
               value={filter}
               onChange={e => setFilter(e.target.value as any)}
+              aria-label="Filter payments by status"
             >
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
@@ -320,6 +321,7 @@ function TicketsTab() {
               className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
               value={filter}
               onChange={e => setFilter(e.target.value as any)}
+              aria-label="Filter tickets by delivery status"
             >
               <option value="all">All Delivery</option>
               <option value="delivered">Delivered</option>
@@ -382,10 +384,7 @@ function PeopleTab() {
   const [filter, setFilter] = useState<"all" | "paid" | "unpaid">("all");
   const [search, setSearch] = useState("");
   
-  const { data: people, isLoading } = useListPeople(
-    undefined,
-    { query: { queryKey: ["/api/people"] } }
-  );
+  const { data: people, isLoading } = useListPeople();
 
   const filteredPeople = people?.filter(p => {
     if (filter === "paid" && !p.isPaid) return false;
@@ -413,6 +412,7 @@ function PeopleTab() {
               className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
               value={filter}
               onChange={e => setFilter(e.target.value as any)}
+              aria-label="Filter attendees by payment status"
             >
               <option value="all">All</option>
               <option value="paid">Paid</option>

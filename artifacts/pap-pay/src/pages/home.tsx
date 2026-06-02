@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Copy, Plus, Minus } from "lucide-react";
+import { Copy, Plus, Minus, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { PaymentModal } from "@/components/payment-modal";
 
@@ -33,9 +33,9 @@ export default function Home() {
       </header>
 
       <main className="max-w-md mx-auto px-4 space-y-6 mt-4">
-        <section className="text-center space-y-2 mb-8">
-          <h2 className="text-3xl font-bold text-primary">WIGWE PAP 2025</h2>
-          <p className="text-muted-foreground">Secure your spot. Fast and easy.</p>
+        <section className="text-center space-y-3 mb-10">
+          <h2 className="text-4xl sm:text-5xl font-extrabold bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent">WIGWE PAP 2025</h2>
+          <p className="text-muted-foreground text-base sm:text-lg">Secure your spot. Fast and easy.</p>
         </section>
 
         <Card className="border-primary/20 shadow-lg shadow-primary/5">
@@ -123,12 +123,26 @@ export default function Home() {
           
           <div className="space-y-3">
             <p className="text-muted-foreground">For further inquiries, important information or any issue, contact admin:</p>
-            <div className="flex justify-center gap-3">
-              <Button variant="outline" size="sm" asChild>
-                <a href="https://wa.me/2348102551002" target="_blank" rel="noreferrer">WhatsApp 1</a>
+            <div className="flex flex-col sm:flex-row justify-center gap-3">
+              <Button 
+                className="w-full sm:w-auto bg-[#25D366] hover:bg-[#128C7E] text-white border-none shadow-md" 
+                size="default" 
+                asChild
+              >
+                <a href="https://wa.me/2348102551002" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                  <MessageCircle className="h-5 w-5" />
+                  WhatsApp 1
+                </a>
               </Button>
-              <Button variant="outline" size="sm" asChild>
-                <a href="https://wa.me/2347016797259" target="_blank" rel="noreferrer">WhatsApp 2</a>
+              <Button 
+                className="w-full sm:w-auto bg-[#25D366] hover:bg-[#128C7E] text-white border-none shadow-md" 
+                size="default" 
+                asChild
+              >
+                <a href="https://wa.me/2347016797259" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                  <MessageCircle className="h-5 w-5" />
+                  WhatsApp 2
+                </a>
               </Button>
             </div>
           </div>

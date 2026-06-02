@@ -1,7 +1,13 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const rawPort = process.env["PORT"];
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+
+const rawPort = process.env["API_PORT"];
 
 if (!rawPort) {
   throw new Error(

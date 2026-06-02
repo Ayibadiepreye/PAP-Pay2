@@ -21,12 +21,12 @@ export function PeopleSelector({
   const [search, setSearch] = useState("");
   const [localSelected, setLocalSelected] = useState<number[]>(selectedIds);
   
-  const { data: people, isLoading } = useListPeople(undefined, {
-    query: { queryKey: ["/api/people"] }
-  });
+  const { data: people, isLoading } = useListPeople();
 
   const filteredPeople = useMemo(() => {
+    console.log("people:", people, "type:", typeof people, Array.isArray(people));
     if (!people) return [];
+    if (!Array.isArray(people)) return [];
     if (!search.trim()) return people;
     const lowerSearch = search.toLowerCase();
     return people.filter(p => p.name.toLowerCase().includes(lowerSearch) || p.number.toString().includes(lowerSearch));
